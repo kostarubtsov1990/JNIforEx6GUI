@@ -34,8 +34,8 @@ void DefaultLogic::CheckPossibleMoves(Board* board,
     vector<direction> emptyCellsAroundCell;
 
     //insert Xs' locations to xLocations. Ys' locations to osLocation
-    for (int i = 0; i < NUM_OF_ROWS; i++) {
-        for (int j = 0; j < NUM_OF_COLS; j++) {
+    for (int i = 0; i < board->GetSize(); i++) {
+        for (int j = 0; j < board->GetSize(); j++) {
             if (board->getBoardContent()[i][j] == X) {
 //                cout << "bla" << endl;
                 this->xsLocations.push_back(Cell(i,j));
@@ -81,27 +81,27 @@ void DefaultLogic::CheckPossibleMoves(Board* board,
             aroundCell.push_back(up);
         }
     }
-    if ((row > LOWER_BOUND) && (col < UPPER_BOUND)) {
+    if ((row > LOWER_BOUND) && (col < board->GetSize() - 1)) {
         if (board->getBoardContent()[row - 1][col + 1] == Empty) {
             aroundCell.push_back(upRight);
         }
     }
-    if (col < UPPER_BOUND) {
+    if (col < board->GetSize() - 1) {
         if (board->getBoardContent()[row][col + 1] == Empty) {
             aroundCell.push_back(Right);
         }
     }
-    if ((row < UPPER_BOUND) && (col < UPPER_BOUND)) {
+    if ((row < board->GetSize() - 1) && (col < board->GetSize() - 1)) {
         if (board->getBoardContent()[row + 1][col + 1] == Empty) {
             aroundCell.push_back(rightDown);
         }
     }
-    if (row < UPPER_BOUND) {
+    if (row < board->GetSize() - 1) {
         if (board->getBoardContent()[row + 1][col] == Empty) {
             aroundCell.push_back(down);
         }
     }
-    if (row < UPPER_BOUND && col > LOWER_BOUND) {
+    if (row < board->GetSize() - 1 && col > LOWER_BOUND) {
         if (board->getBoardContent()[row + 1][col - 1] == Empty) {
             aroundCell.push_back(downLeft);
         }
@@ -131,7 +131,7 @@ void DefaultLogic::UpdateMovesVector(Board* board, boardContent xOrOplayer,
             if (emptyCells[i] == up) {
                 //while not empty and not xplayer (meaning we run on Xs' cells)
                 while (board->getBoardContent()[row][col] != Empty &&
-                        board->getBoardContent()[row][col] != xOrOplayer && row < UPPER_BOUND) {
+                        board->getBoardContent()[row][col] != xOrOplayer && row < board->GetSize() - 1) {
                     row++;
                 }
                 //reached block from the other side
@@ -153,7 +153,7 @@ void DefaultLogic::UpdateMovesVector(Board* board, boardContent xOrOplayer,
             }
             else if (emptyCells[i] == upRight) {
                 while (board->getBoardContent()[row][col] != Empty && board->getBoardContent()[row][col] != xOrOplayer
-                        && row < UPPER_BOUND && col > LOWER_BOUND) {
+                        && row < board->GetSize() - 1 && col > LOWER_BOUND) {
                     row++;
                     col--;
                 }
@@ -217,7 +217,7 @@ void DefaultLogic::UpdateMovesVector(Board* board, boardContent xOrOplayer,
             }
             else if (emptyCells[i] == downLeft) {
                 while (board->getBoardContent()[row][col] != Empty && board->getBoardContent()[row][col] != xOrOplayer
-                        && row > LOWER_BOUND && col < UPPER_BOUND) {
+                        && row > LOWER_BOUND && col < board->GetSize() - 1) {
                     row--;
                     col++;
                 }
@@ -233,7 +233,7 @@ void DefaultLogic::UpdateMovesVector(Board* board, boardContent xOrOplayer,
                 }
             }
             else if (emptyCells[i] == Left) {
-                while (board->getBoardContent()[row][col] != Empty && board->getBoardContent()[row][col] != xOrOplayer && col < UPPER_BOUND) {
+                while (board->getBoardContent()[row][col] != Empty && board->getBoardContent()[row][col] != xOrOplayer && col < board->GetSize() - 1) {
                     col++;
                 }
                 if (board->getBoardContent()[row][col] == xOrOplayer) {
@@ -249,7 +249,7 @@ void DefaultLogic::UpdateMovesVector(Board* board, boardContent xOrOplayer,
             }
             else {//(emptyCells[i] == upLeft)
                 while (board->getBoardContent()[row][col] != Empty && board->getBoardContent()[row][col] != xOrOplayer
-                        && col < UPPER_BOUND && row < UPPER_BOUND) {
+                        && col < board->GetSize() - 1 && row < board->GetSize() - 1) {
                     col++;
                     row++;
                 }
@@ -406,8 +406,8 @@ winner DefaultLogic::DeclareWinner(Board* board) const {
     int numOfXs = 0;
     int numOfOs = 0;
     //increment X and Y counters according to the current board
-    for (int i = 0; i < NUM_OF_ROWS; i++) {
-        for (int j = 0; j < NUM_OF_COLS; j++) {
+    for (int i = 0; i < board->GetSize(); i++) {
+        for (int j = 0; j < board->GetSize(); j++) {
             if(board->getBoardContent()[i][j] == X) {
                 numOfXs++;
             }

@@ -9,20 +9,21 @@
 
 Board::~Board() {
     //cout << "Inside Board's D'tor" << endl;
-   for (int i = 0; i < NUM_OF_ROWS; i++) {
+   for (int i = 0; i < boardSize; i++) {
         delete this->content[i];
     }
     delete content;
 }
 
 //C'tor
-Board::Board() {
-    this->content = new boardContent*[NUM_OF_ROWS];
-    for(int i = 0; i < NUM_OF_ROWS; ++i)
-        this->content[i] = new boardContent[NUM_OF_COLS];
+Board::Board(int boardSize) {
+    this->boardSize;
+    this->content = new boardContent*[boardSize];
+    for(int i = 0; i < boardSize; ++i)
+        this->content[i] = new boardContent[boardSize];
     //initiallization
-    for (int i = 0; i < NUM_OF_ROWS; i++) {
-        for (int j = 0; j < NUM_OF_COLS; j++) {
+    for (int i = 0; i < boardSize; i++) {
+        for (int j = 0; j < boardSize; j++) {
             this->content[i][j] = Empty;
         }
     }
@@ -34,26 +35,28 @@ Board::Board() {
 }
 
 
-Board::Board(const Board &other) {
-    this->content = new boardContent*[NUM_OF_ROWS];
-    for(int i = 0; i < NUM_OF_ROWS; ++i)
-        this->content[i] = new boardContent[NUM_OF_COLS];
+Board::Board(const Board &other, int boardSize) {
+    this->boardSize = boardSize;
+    this->content = new boardContent*[boardSize];
+    for(int i = 0; i < boardSize; ++i)
+        this->content[i] = new boardContent[boardSize];
     //Copy the data from the other object.
-    for (int i = 0; i < NUM_OF_ROWS; ++i) {
-        for (int j = 0; j < NUM_OF_COLS; ++j) {
+    for (int i = 0; i < boardSize; ++i) {
+        for (int j = 0; j < boardSize; ++j) {
             this->content[i][j] = other.getBoardContent()[i][j];
         }
     }
 }
 
-Board::Board(const string &s) {
-    this->content = new boardContent*[NUM_OF_ROWS];
-    for(int i = 0; i < NUM_OF_ROWS; ++i) {
-        this->content[i] = new boardContent[NUM_OF_COLS];
+Board::Board(const string &s, int boardSize) {
+    this->boardSize = boardSize;
+    this->content = new boardContent*[boardSize];
+    for(int i = 0; i < boardSize; ++i) {
+        this->content[i] = new boardContent[boardSize];
     }
 
     int k = 0;
-    for (int i = 0; i < NUM_OF_ROWS; ++i) {
+    for (int i = 0; i < boardSize; ++i) {
         int j = 0;
         while (s[k] != '\n') {
 
@@ -77,19 +80,24 @@ Board::Board(const string &s) {
     }
 }
 
-Board::Board(boardContent ** boardContent) {
+Board::Board(boardContent ** boardContent, int boardSize) {
+    this->boardSize = boardSize;
     this->content = boardContent;
+}
+
+int Board::GetSize() {
+    return boardSize;
 }
 
 void Board::printBoard() {
     //print first line of board
-    for (int i = 0; i < NUM_OF_COLS; i++) {
+    for (int i = 0; i < boardSize; i++) {
         cout << " | " << i+1;
     }
     cout << " |" << endl;
     int index = 0;
     //print the content of the board in the correct format
-    for (int i = 0; i < (2 * NUM_OF_ROWS) + 1; i++) {
+    for (int i = 0; i < (2 * boardSize) + 1; i++) {
         //broken line
         if (i % 2 == 0) {
             printBrokenLine();
@@ -97,7 +105,7 @@ void Board::printBoard() {
             //print line of the board in the correct format
         else {
             cout << index + 1 ;
-            for (int j = 0; j < NUM_OF_COLS; j++) {
+            for (int j = 0; j < boardSize; j++) {
                 cout << "| " << this->calcStrValueOfBoardContent
                         (this->content[index][j]) << " ";
             }
@@ -108,7 +116,7 @@ void Board::printBoard() {
 }
 
 void Board::printBrokenLine() const {
-    for (int i = 0; i < 2 + (4*NUM_OF_COLS); i++) {
+    for (int i = 0; i < 2 + (4*boardSize); i++) {
         cout << '-';
     }
     cout << endl;
@@ -128,8 +136,8 @@ char Board::calcStrValueOfBoardContent(boardContent symbol) const {
 }
 
 bool Board::operator==(const Board &other) const {
-    for (int i = 0; i < NUM_OF_ROWS; ++i) {
-        for (int j = 0; j < NUM_OF_COLS; ++j) {
+    for (int i = 0; i < boardSize; ++i) {
+        for (int j = 0; j < boardSize; ++j) {
             if (this->content[i][j] != other.content[i][j]) {
                 return false;
             }

@@ -26,16 +26,18 @@ class Board {
 public:
     ~Board();
     //C'tor
-    Board();
-    Board(const string &s);
-    Board(const Board &other);
-    Board(boardContent**);
+    Board(int);
+    Board(const string &s, int);
+    Board(const Board &other, int);
+    Board(boardContent**, int);
+    int GetSize();
     //print the board to the screen with its content and in the correct format
     void printBoard();
     boardContent** getBoardContent() const;
     bool operator ==(const Board &other) const;
 
 private:
+    int boardSize;
     //boardContent holds the content of the board
     boardContent** content;
     //print the broken line that appears between each to lines of the board

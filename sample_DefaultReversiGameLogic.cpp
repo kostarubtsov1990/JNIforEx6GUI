@@ -27,6 +27,7 @@ public:
 ArrayInfo TwoDimentionalArrayFromjobjectArray(JNIEnv * env, jobjectArray array);
 boardContent ** CastIntArrayToBoardTypeArray (ArrayInfo arrayInfo);
 jobjectArray TwoDimentionalArrayTojobjectArray (JNIEnv * env, ArrayInfo arrayInfo);
+void UpdateArrayInfo (ArrayInfo* arrayInfo, boardContent** boardContent);
 
 static jfieldID _get_self_id(JNIEnv *env, jobject thisObj) {
     static int init = 0;
@@ -54,15 +55,18 @@ JNIEXPORT void JNICALL Java_sample_DefaultReversiGameLogic_initialize
   (JNIEnv * env, jobject thisObj)  {
     GameLogic* logic = new DefaultLogic();
     _set_self(env, thisObj, logic);
-
+    cout << "allocated new pointer";
 }
 
 JNIEXPORT void JNICALL Java_sample_DefaultReversiGameLogic_CheckPossibleMoves
   (JNIEnv *env, jobject thisObj, jobjectArray array, jint player){
     ArrayInfo twoDimArrayInfo = TwoDimentionalArrayFromjobjectArray(env, array);
     boardContent ** content = CastIntArrayToBoardTypeArray(twoDimArrayInfo);
+    jclass thisClass = env->GetObjectClass(thisObj);
+    jfieldID  gameSizeID = env->GetFieldID(thisClass, "gameSize", "I");
+    jint gameSize = env->GetIntField(thisObj, gameSizeID);
 
-    Board board (content);
+    Board board (content, gameSize);
 
     GameLogic * logic = _get_self(env, thisObj);
 
@@ -77,12 +81,17 @@ JNIEXPORT jobjectArray JNICALL Java_sample_DefaultReversiGameLogic_UpdateBoard
     ArrayInfo twoDimArrayInfo = TwoDimentionalArrayFromjobjectArray(env, array);
     boardContent ** content = CastIntArrayToBoardTypeArray(twoDimArrayInfo);
 
-    Board board (content);
+    jclass thisClass = env->GetObjectClass(thisObj);
+    jfieldID  gameSizeID = env->GetFieldID(thisClass, "gameSize", "I");
+    jint gameSize = env->GetIntField(thisObj, gameSizeID);
+
+    Board board (content, gameSize);
 
     GameLogic * logic = _get_self(env, thisObj);
 
     logic->UpdateBoard(&board, row, col, static_cast<boardContent > (playerSymbol));
 
+    UpdateArrayInfo(&twoDimArrayInfo, content);
 
     return TwoDimentionalArrayTojobjectArray(env, twoDimArrayInfo);
 
@@ -103,8 +112,20 @@ JNIEXPORT jboolean JNICALL Java_sample_DefaultReversiGameLogic_IsGameOver
     ArrayInfo twoDimArrayInfo = TwoDimentionalArrayFromjobjectArray(env, array);
     boardContent ** content = CastIntArrayToBoardTypeArray(twoDimArrayInfo);
 
-    Board board (content);
+    for (int i = 0; i < twoDimArrayInfo.GetSize(); i++) {
+        for (int j = 0; j < twoDimArrayInfo.GetSize(); j++) {
+            cout << content[i][j];
+        }
+        cout << endl;
+    }
 
+    //cout << twoDimArrayInfo.GetSize();
+    jclass thisClass = env->GetObjectClass(thisObj);
+    jfieldID  gameSizeID = env->GetFieldID(thisClass, "gameSize", "I");
+    jint gameSize = env->GetIntField(thisObj, gameSizeID);
+
+    Board board (content, gameSize);
+    //board.printBoard();
     GameLogic * logic = _get_self(env, thisObj);
     return (jboolean)logic->IsGameOver(&board);
 }
@@ -114,8 +135,11 @@ JNIEXPORT jint JNICALL Java_sample_DefaultReversiGameLogic_DeclareWinner
   (JNIEnv *env, jobject thisObj, jobjectArray array){
     ArrayInfo twoDimArrayInfo = TwoDimentionalArrayFromjobjectArray(env, array);
     boardContent ** content = CastIntArrayToBoardTypeArray(twoDimArrayInfo);
+    jclass thisClass = env->GetObjectClass(thisObj);
+    jfieldID  gameSizeID = env->GetFieldID(thisClass, "gameSize", "I");
+    jint gameSize = env->GetIntField(thisObj, gameSizeID);
 
-    Board board (content);
+    Board board (content, gameSize);
 
     GameLogic * logic = _get_self(env, thisObj);
     return static_cast<int >(logic->DeclareWinner(&board));
@@ -125,7 +149,7 @@ JNIEXPORT jint JNICALL Java_sample_DefaultReversiGameLogic_DeclareWinner
 JNIEXPORT jboolean JNICALL Java_sample_DefaultReversiGameLogic_IsPossibleMoveExist
         (JNIEnv * env, jobject thisObj) {
     GameLogic * logic = _get_self(env, thisObj);
-    return (jboolean)logic->GetMoves().empty();
+    return (jboolean)!logic->GetMoves().empty();
 }
 
 JNIEXPORT void JNICALL Java_sample_DefaultReversiGameLogic_destroy
@@ -161,14 +185,25 @@ ArrayInfo TwoDimentionalArrayFromjobjectArray(JNIEnv * env, jobjectArray array) 
 
 boardContent ** CastIntArrayToBoardTypeArray (ArrayInfo arrayInfo) {
     boardContent ** content;
-    content = new boardContent*[NUM_OF_ROWS];
-    for(int i = 0; i < NUM_OF_ROWS; ++i)
-        content[i] = new boardContent[NUM_OF_COLS];
+    content = new boardContent*[arrayInfo.GetSize()];
+    for(int i = 0; i < arrayInfo.GetSize(); ++i)
+        content[i] = new boardContent[arrayInfo.GetSize()];
 
 
     for (int i = 0; i < arrayInfo.GetSize(); i++) {
         for (int j = 0; j < arrayInfo.GetSize(); j++) {
             content[i][j] = static_cast<boardContent >(arrayInfo.GetData()[i][j]);
+            //cout << content[i][j];
+        }
+    }
+    return content;
+}
+
+void UpdateArrayInfo (ArrayInfo* arrayInfo, boardContent** boardContent) {
+    for (int i = 0; i < arrayInfo->GetSize(); i++) {
+        for (int j = 0; j < arrayInfo->GetSize(); j++) {
+            arrayInfo->GetData()[i][j] = static_cast<int >(boardContent[i][j]);
+            //cout << content[i][j];
         }
     }
 }
